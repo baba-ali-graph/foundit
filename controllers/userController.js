@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const config = require('../config')
-const ERROR = require("../error.js")
+const ERROR = require("../errors")
 const displays = require("../displays")
 
 class UserController {
@@ -10,7 +10,7 @@ class UserController {
     this.auth = true
   }
   
-  async function Signup(req,res){
+  async  Signup(req,res){
    const user = req.body
    const errors = validate(user)
    if(errors) res.json({error,type : ERROR.validation})
@@ -27,7 +27,7 @@ class UserController {
    }
   }
 
-  async function Login(req,res){
+  async  Login(req,res){
     const userInput = req.body
     const errors = validate(userInput)
     if(errors) res.json(error,ERROR.validation)
@@ -48,9 +48,9 @@ class UserController {
     }
   }
   
-  async function deleteAccount(req,res){
+  async  deleteAccount(req,res){
     const id  = req.params.id
-    await deleted = await this.users.findOneAndRemove({id:id})
+    const deleted = await this.users.findOneAndRemove({id:id})
     if(deleted){
       res.json({done:true})
     }else{
@@ -58,20 +58,20 @@ class UserController {
     }
   }
   
-  function assignUserDisplay(){
+   assignUserDisplay(){
    const seed = parseInt(Math.random() * displays.length -1 )
    return displays[seed]
   }
   
-  function makeToken({id,name,email}, time) {
+   makeToken({id,name,email}, time) {
     return jwt.sign({id,name,email}, config.secret, {expiresIn: time})
   }
   
-  function verifyPwd({password},{password : toCheck}) {
-    return bcrypt.compareSync(password,toCheck)_
+   verifyPwd({password},{password : toCheck}) {
+    return bcrypt.compareSync(password,toCheck)
   }
   
-  function specifyUserDetails(details) {
+   specifyUserDetails(details) {
     const field = details.field
     const which = extractEither(field)
     const newUser = {password:details.password}
@@ -80,11 +80,11 @@ class UserController {
     return newUser
   }
   
-  function removePassword(user) {
+   removePassword(user) {
   user.password = null
   return user
   }
-  function extractEither({field}){
+   extractEither({field}){
     if(/@/.test(field))
       return "email"
     else
