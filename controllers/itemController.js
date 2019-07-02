@@ -5,8 +5,8 @@ class itemController {
   this.done = true
   }
   
-  async function AddItem(req,res){
-   const item = req.body
+  async  AddItem(req,res){
+   const item = withDate(req.body)
    const errors = validate(item)
    if(errors) res.json({error,type : ERROR.validation})
    else {
@@ -21,7 +21,7 @@ class itemController {
    }
   }
   
-  async function editItem(req,res) {
+  async  editItem(req,res) {
   	const item = req.body
   	const editedItem = await updateParameters(this.items,item)
   	if(editedItem)
@@ -30,7 +30,7 @@ class itemController {
   		res.json({error.true, type: ERROR.database})
   }
   
-  function updateParameters(items, edited){
+	 updateParameters(items, edited){
   	return new Promise((resolve,reject) => {
   		const result = await items.findOneAndUpdate({id:edited.id}, edited, {new:true} )
   		if(result) resolve(result)
@@ -40,7 +40,7 @@ class itemController {
   	})
   }
   
-	async function removeItem(req,res) {
+	async  removeItem(req,res) {
 		const id = req.params.id
 		const removed = await this.items.findByIdAndRemove({id:id})
 		if(removed)
@@ -50,7 +50,32 @@ class itemController {
 		
 	}
 	
-	function claimItem() {}
-	function setItemDate() {}
+	 simplifyDate(date) {
+		const inMilliseconds = date.getTime()
+		const inDays = (inMilliseconds/1000*60*60*24)
+		if(inDays >=7)
+		{
+			const inWeeks = parseInt(inDays/7)			
+			if(inWeeks >= 4)
+			{
+				const inMonths = parseInt(inWeeks/4)
+					if(inMonths >= 12) 
+					{
+						const inYears = parseInt(inMonths/12)
+							return { ago:inYears, type:'year'}
+					}
+				return { ago:inMonths, type:'month' }
+			}
+			return { ago:inWeeks, type:'week' }
+		}
+		
+		return { ago:inDays, type:'days' }	
+	}
+  }
+  
+  function withDate(item){
+  const _item = item
+  _item.date = new Date()
+  	return _item
   }
 }
