@@ -1,6 +1,6 @@
 const {Schema, model} = require('mongoose')
 
-const usersSchema = Schema({
+const itemSchema = Schema({
   id : String,
   name : String,
   description : String,
@@ -9,4 +9,4 @@ const usersSchema = Schema({
   dateFound : Date
 })
 
-module.exports = model('items',itemsSchema)
+module.exports = model('items',itemSchema)

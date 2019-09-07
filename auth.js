@@ -3,14 +3,12 @@ const {secret} = require('./config')
 const routes = require('./router/routes')
 
 const Authenticate = (req, res, next) => {
-  const token = extractToken(req)
+  const token = req.headers['x-access-token']
 	const verified = jwt.verify(token, secret)
   if(verified) 
     return next()
   else
     res.redirect(route.index)
 }
-
-const extractToken = ({headers},x) =>  x ?  headers['x-access-token'] : headers['Authorization'][0] 
 
 module.exports = Authenticate

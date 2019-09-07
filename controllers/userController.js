@@ -1,27 +1,30 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const config = require('../config')
-const ERROR = require("../errors")
+const ERRORS = require("../errors")
+let {userValidation} = require('../validate.js')
 const displays = require("../displays")
+const users = require('../models/user.js')
 
 class UserController {
-  constructor(userModel){
-    this.users = userModel
-    this.auth = true
+  constructor(){
+  console.log('new instance of user controller created')
   }
   
-  async  Signup(req,res){
+  async Signup(req,res){
    const user = req.body
-   const errors = validate(user)
-   if(errors) res.json({error,type : ERROR.validation})
+   console.log(user)
+   let errors = userValidation(user)
+   if(errors) res.json({errors,type : ERRORS.validation})
    else {
-  	const newUser = new this.users(user)
-    const result = await newUsers.save()
+  	const newUser = new users(user)
+    const result = await newUser.save()
     if(result){
       const token = makeToken(removePassword(result),'4h')
-      res.json(token,this.auth)
+      console.log(token)
+      res.json({token,auth:true})
     } else {
-      res.json({error:true, type : ERROR.database})
+      res.json({ERRORS:true, type : ERRORS.database})
     }
      
    }
@@ -29,49 +32,52 @@ class UserController {
 
   async  Login(req,res){
     const userInput = req.body
-    const errors = validate(userInput)
-    if(errors) res.json(error,ERROR.validation)
+    let errors = validate(userInput)
+    if(errors) res.json({ERRORS,type:ERRORS.validation})
     else {
       const userDetails = specifyUserDetails(userInput)
-      const existedUser = await this.users.findOne({[userDetails.which]:userDetails[which]})
+      const existedUser = await users.findOne({[userDetails.which]:userDetails[which]})
       if(existedUser) {
         const verified = verifyPwd(existedUser,userDetails) 
         if(verified){
           const token = makeToken(removePassword(existedUser), '4h')
-          res.json(token,auth)
+          res.json({token,auth:true})
         } else {
-          res.json({error:true, type:ERROR.password})
+          res.json({ERRORS:true, type:ERRORS.password})
         }
       } else {
-        res.json({error:true, type:ERROR.user})
+        res.json({ERRORS:true, type:ERRORS.user})
       }
     }
   }
   
   async  deleteAccount(req,res){
     const id  = req.params.id
-    const deleted = await this.users.findOneAndRemove({id:id})
+    const deleted = await users.findOneAndRemove({id:id})
     if(deleted){
       res.json({done:true})
     }else{
-      res.json({error:true, type:ERRORS.operation})
+      res.json({ERRORS:true, type:ERRORS.operation})
     }
   }
+  }
   
-   assignUserDisplay(){
+    
+  function assignUserDisplay(){
    const seed = parseInt(Math.random() * displays.length -1 )
+   console.log(users)
    return displays[seed]
   }
   
-   makeToken({id,name,email}, time) {
+  function makeToken({id,name,email}, time) {
     return jwt.sign({id,name,email}, config.secret, {expiresIn: time})
   }
   
-   verifyPwd({password},{password : toCheck}) {
+  function verifyPwd({password},{password : toCheck}) {
     return bcrypt.compareSync(password,toCheck)
   }
   
-   specifyUserDetails(details) {
+  function specifyUserDetails(details) {
     const field = details.field
     const which = extractEither(field)
     const newUser = {password:details.password}
@@ -80,21 +86,20 @@ class UserController {
     return newUser
   }
   
-   removePassword(user) {
+  function removePassword(user) {
   user.password = null
   return user
   }
-   extractEither({field}){
+  function extractEither({field}){
     if(/@/.test(field))
       return "email"
     else
       return "username"
   }
-}
   
-  
-  
-  
-
-  
+  function checkIfValid(user) {
+  	let errors = []
+  	checkEmptiness(user,ERRORS)
+  }
+    
 module.exports = UserController

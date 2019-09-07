@@ -1,50 +1,51 @@
+const items = require('../models/item')
+let done = true
 
 class itemController {
   constructor(itemModel){
-  this.items = itemModel
-  this.done = true
+  console.log('new instance of item controller created')
   }
   
-  async  AddItem(req,res){
+  async AddItem(req,res){
    const item = withDate(req.body)
-   const errors = validate(item)
+   let errors = false
    if(errors) res.json({error,type : ERROR.validation})
    else {
-  	const newItem = new this.items(item)
+  	const newItem = new items(item)
+  	console.log(item)
     const result = await newItem.save()
     if(result){
-      res.json(result,this.done)
+      res.json({result,done})
     } else {
       res.json({error:true, type : ERROR.database})
     }
-     
    }
   }
   
-  async  editItem(req,res) {
+  async editItem(req,res) {
   	const item = req.body
-  	const editedItem = await updateParameters(this.items,item)
+  	const editedItem = await updateParameters(items,item)
   	if(editedItem)
-  		res.json({editedItem,done: this.done})
+  		res.json({editedItem,done: done})
   	else
-  		res.json({error.true, type: ERROR.database})
+  		res.json({error:true, type: ERROR.database})
   }
   
-	 updateParameters(items, edited){
-  	return new Promise((resolve,reject) => {
-  		const result = await items.findOneAndUpdate({id:edited.id}, edited, {new:true} )
-  		if(result) resolve(result)
-  		else {
-  		const reject(false)
+	async updateParameters(items, edited) {
+  	return new Promise( async (resolve,reject) => {
+  	const result = await items.findOneAndUpdate({id:edited.id}, edited, {new:true} )
+  	if(result) return resolve(result)
+  	else {
+  	return reject(false)
   		}
   	})
   }
   
 	async  removeItem(req,res) {
 		const id = req.params.id
-		const removed = await this.items.findByIdAndRemove({id:id})
+		const removed = await items.findByIdAndRemove({id:id})
 		if(removed)
-			res.json({done:this.done})
+			res.json({done})
 		else
 			res.json({error:true, type:ERROR.database})
 		
@@ -78,4 +79,4 @@ class itemController {
   _item.date = new Date()
   	return _item
   }
-}
+module.exports = itemController

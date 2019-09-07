@@ -1,10 +1,9 @@
 module.exports = {
   index : '/',
   login : '/user/login',
-  signup : '/user/signup',
+  signup : '/signup',
   forgotPassword : '/user/forgotpassword',
-  passwordReset : '/user/resetpassword',
-  
+  passwordReset : '/user/resetpassword',  
   loadAllItems : '/items/all',
   editItem : 'items/edit/:id',
   deleteItem : '/items/delete/:id',

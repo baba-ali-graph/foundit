@@ -1,5 +1,6 @@
-exports.handleResponse = (res,error,data) => 
-{
-  if(error) res.json({error:error})
-  else res.json(data)
-}
+const fs = require('fs')
+exports.dropCertDetails = () => ({
+//	key : fs.readFileSync('./Security/server.key'),
+	cert : fs.readFileSync('./Security/server.cert') 
+	
+})
